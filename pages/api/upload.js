@@ -12,41 +12,35 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
+  
   const form = formidable({ keepExtensions: true });
-
+  
   form.parse(req, async (err, fields, files) => {
     if (err || !files.pdf) {
       return res.status(400).json({ error: 'Failed to upload file' });
     }
-
-    // Handle the file from formidable
+    
     const file = Array.isArray(files.pdf) ? files.pdf[0] : files.pdf;
-
+    
     try {
-      // Step 1: Read and extract text from the PDF
+      // Extract PDF text
       const dataBuffer = await fs.promises.readFile(file.filepath);
       const pdfData = await pdf(dataBuffer);
       const extractedText = pdfData.text;
       
-      // Optional: Log the extracted text for debugging
-      console.log("Extracted text:", extractedText.substring(0, 200)); // log first 200 chars
+      // Build prompt to extract variables
+      const prompt = `
+Extract only the average daily usage and average daily export values from this electricity bill.
+Format your response exactly as follows:
+Average Daily Usage: X kWh
+Average Daily Export: Y kWh
 
-// Step 2: Create a prompt using the extracted text
-const prompt = `
-Extract the following details from the electricity bill text. Return the results in a clear list format with each variable labeled.
-a. Customer Name
-b. Address
-c. Number of days in the period
-d. Average Daily Usage
-e. Total Usage
-f. Average daily Feed In or Export to the grid. If the bill provides a total export value, compute the average daily export by dividing that total by the number of days in the period.
+Pay atention to the period of the bill (how many days it covers) because sometimes the bill shows the total exported to the grid and we need the average daily. If you find the total exported to the grid, divide it by the number of days of the bill period.
 
 Electricity Bill Text:
 ${extractedText}
-`;
-
-      // Step 3: Call the OpenAI Chat API with the prompt
+      `;
+      
       const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -54,19 +48,34 @@ ${extractedText}
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4', // or 'gpt-4o' if preferred
-          messages: [
-            { role: 'user', content: prompt }
-          ],
+          model: 'gpt-4',
+          messages: [{ role: 'user', content: prompt }],
           max_tokens: 500,
         }),
       });
-
+      
       const openaiData = await openaiRes.json();
-      return res.status(200).json({ result: openaiData });
+      
+      if (!openaiData.choices?.[0]?.message?.content) {
+        throw new Error('No response from OpenAI');
+      }
+
+      const response = {
+        content: [{
+          text: {
+            value: openaiData.choices[0].message.content
+          }
+        }]
+      };
+      
+      return res.status(200).json({ result: response });
+      
     } catch (error) {
       console.error('Processing error:', error);
-      return res.status(500).json({ error: 'Failed to process PDF', details: error.message });
+      return res.status(500).json({ 
+        error: 'Failed to process PDF', 
+        details: error.message 
+      });
     }
   });
 }
