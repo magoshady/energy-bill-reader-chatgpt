@@ -5,7 +5,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load any previously saved result (this is within the iframe itself)
+  // Load any previously saved result
   useEffect(() => {
     const savedResult = localStorage.getItem('billAnalysis');
     if (savedResult) {
@@ -32,20 +32,16 @@ export default function Home() {
         throw new Error(data.error || 'Failed to process the PDF');
       }
       
-      // Store the result in localStorage (inside the iframe)
-      localStorage.setItem('billAnalysis', JSON.stringify(data.result));
-      setResult(data.result);
+      // Store the result in localStorage with a specific key that the main website can read
+      const resultToStore = {
+        dailyUsage: data.result.dailyUsage,
+        dailyExport: data.result.dailyExport,
+        timestamp: new Date().toISOString()
+      };
+      
+      localStorage.setItem('billAnalysis', JSON.stringify(resultToStore));
+      setResult(resultToStore);
 
-      // Send the result to the parent window via postMessage
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({
-          type: 'billAnalysis',
-          result: {
-            dailyUsage: data.result.dailyUsage,
-            dailyExport: data.result.dailyExport
-          }
-        }, 'https://www.nuevaenergy.com.au'); // Replace with your actual parent domain (including protocol)
-      }
     } catch (err) {
       setError(err.message);
     } finally {
