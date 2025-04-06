@@ -5,7 +5,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load results from localStorage on component mount
+  // Load any previously saved result (this is within the iframe itself)
   useEffect(() => {
     const savedResult = localStorage.getItem('billAnalysis');
     if (savedResult) {
@@ -32,19 +32,19 @@ export default function Home() {
         throw new Error(data.error || 'Failed to process the PDF');
       }
       
-      // Store the result in localStorage
+      // Store the result in localStorage (inside the iframe)
       localStorage.setItem('billAnalysis', JSON.stringify(data.result));
       setResult(data.result);
 
-      // Add this after you get the results in your Vercel app
-      if (window.parent !== window) {
+      // Send the result to the parent window via postMessage
+      if (window.parent && window.parent !== window) {
         window.parent.postMessage({
           type: 'billAnalysis',
           result: {
             dailyUsage: data.result.dailyUsage,
             dailyExport: data.result.dailyExport
           }
-        }, 'www.nuevaenergy.com.au'); // Replace '*' with your website's domain for better security
+        }, 'https://www.nuevaenergy.com.au'); // Replace with your actual parent domain (including protocol)
       }
     } catch (err) {
       setError(err.message);
@@ -122,12 +122,7 @@ export default function Home() {
             cursor: loading ? 'not-allowed' : 'pointer',
             opacity: loading ? 0.7 : 1,
             fontSize: '1.1rem',
-            fontWeight: 'bold',
-            transition: 'all 0.2s ease',
-            ':hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 8px rgba(203, 247, 218, 0.3)'
-            }
+            fontWeight: 'bold'
           }}
         >
           {loading ? 'Processing...' : 'Analyze Bill'}
@@ -174,11 +169,7 @@ export default function Home() {
               padding: '1.5rem',
               backgroundColor: '#333333',
               borderRadius: '8px',
-              textAlign: 'center',
-              transition: 'transform 0.2s ease',
-              ':hover': {
-                transform: 'translateY(-4px)'
-              }
+              textAlign: 'center'
             }}>
               <h3 style={{ 
                 color: '#CBF7DA', 
@@ -201,11 +192,7 @@ export default function Home() {
               padding: '1.5rem',
               backgroundColor: '#333333',
               borderRadius: '8px',
-              textAlign: 'center',
-              transition: 'transform 0.2s ease',
-              ':hover': {
-                transform: 'translateY(-4px)'
-              }
+              textAlign: 'center'
             }}>
               <h3 style={{ 
                 color: '#CBF7DA', 
