@@ -32,23 +32,22 @@ export default function Home() {
     }
   };
 
-  const extractValue = (text, label) => {
-    const regex = new RegExp(`${label}[\\s:]+([\\d.]+)`, 'i');
-    const match = text.match(regex);
-    return match ? match[1] : 'Not found';
-  };
-
   return (
     <main style={{ 
       padding: '2rem', 
       fontFamily: 'sans-serif',
       maxWidth: '800px',
-      margin: '0 auto'
+      margin: '0 auto',
+      backgroundColor: '#000000',
+      minHeight: '100vh',
+      color: '#ffffff'
     }}>
       <h1 style={{ 
-        color: '#333',
+        color: '#ffffff',
         marginBottom: '2rem',
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: '2.5rem',
+        fontWeight: 'bold'
       }}>
         Electricity Bill Analyzer
       </h1>
@@ -61,13 +60,17 @@ export default function Home() {
           gap: '1rem', 
           marginBottom: '2rem',
           padding: '2rem',
-          backgroundColor: '#f5f5f5',
+          backgroundColor: '#1a1a1a',
           borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <label htmlFor="pdf" style={{ fontWeight: 'bold' }}>
+          <label htmlFor="pdf" style={{ 
+            fontWeight: 'bold',
+            color: '#ffffff',
+            fontSize: '1.1rem'
+          }}>
             Upload Your Electricity Bill (PDF)
           </label>
           <input 
@@ -77,10 +80,12 @@ export default function Home() {
             accept=".pdf" 
             required 
             style={{
-              padding: '0.5rem',
-              border: '1px solid #ddd',
+              padding: '0.75rem',
+              border: '2px solid #333',
               borderRadius: '4px',
-              backgroundColor: 'white'
+              backgroundColor: '#1a1a1a',
+              color: '#ffffff',
+              fontSize: '1rem'
             }}
           />
         </div>
@@ -88,13 +93,20 @@ export default function Home() {
           type="submit"
           disabled={loading}
           style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#0070f3',
-            color: 'white',
+            padding: '1rem 2rem',
+            backgroundColor: '#CBF7DA',
+            color: '#000000',
             border: 'none',
             borderRadius: '4px',
             cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1
+            opacity: loading ? 0.7 : 1,
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            transition: 'all 0.2s ease',
+            ':hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 8px rgba(203, 247, 218, 0.3)'
+            }
           }}
         >
           {loading ? 'Processing...' : 'Analyze Bill'}
@@ -104,10 +116,12 @@ export default function Home() {
       {error && (
         <div style={{
           padding: '1rem',
-          backgroundColor: '#fee2e2',
-          color: '#dc2626',
+          backgroundColor: '#ff4444',
+          color: '#ffffff',
           borderRadius: '4px',
-          marginBottom: '1rem'
+          marginBottom: '1rem',
+          textAlign: 'center',
+          fontWeight: 'bold'
         }}>
           {error}
         </div>
@@ -116,14 +130,16 @@ export default function Home() {
       {result && (
         <div style={{
           padding: '2rem',
-          backgroundColor: 'white',
+          backgroundColor: '#1a1a1a',
           borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
         }}>
           <h2 style={{ 
-            color: '#333',
+            color: '#ffffff',
             marginBottom: '1.5rem',
-            textAlign: 'center'
+            textAlign: 'center',
+            fontSize: '2rem',
+            fontWeight: 'bold'
           }}>
             Bill Analysis Results
           </h2>
@@ -134,38 +150,85 @@ export default function Home() {
             gap: '1rem'
           }}>
             <div style={{
-              padding: '1rem',
-              backgroundColor: '#f8fafc',
-              borderRadius: '4px',
-              textAlign: 'center'
+              padding: '1.5rem',
+              backgroundColor: '#333333',
+              borderRadius: '8px',
+              textAlign: 'center',
+              transition: 'transform 0.2s ease',
+              ':hover': {
+                transform: 'translateY(-4px)'
+              }
             }}>
-              <h3 style={{ color: '#64748b', marginBottom: '0.5rem' }}>
+              <h3 style={{ 
+                color: '#CBF7DA', 
+                marginBottom: '1rem',
+                fontSize: '1.2rem',
+                fontWeight: 'bold'
+              }}>
                 Average Daily Usage
               </h3>
               <p style={{ 
-                fontSize: '1.5rem',
+                fontSize: '2rem',
                 fontWeight: 'bold',
-                color: '#1e293b'
+                color: '#ffffff'
               }}>
-                {extractValue(result.content[0].text.value, 'average daily usage')} kWh
+                {result.dailyUsage ? `${result.dailyUsage} kWh` : 'Not found'}
               </p>
             </div>
 
             <div style={{
-              padding: '1rem',
-              backgroundColor: '#f8fafc',
-              borderRadius: '4px',
-              textAlign: 'center'
+              padding: '1.5rem',
+              backgroundColor: '#333333',
+              borderRadius: '8px',
+              textAlign: 'center',
+              transition: 'transform 0.2s ease',
+              ':hover': {
+                transform: 'translateY(-4px)'
+              }
             }}>
-              <h3 style={{ color: '#64748b', marginBottom: '0.5rem' }}>
+              <h3 style={{ 
+                color: '#CBF7DA', 
+                marginBottom: '1rem',
+                fontSize: '1.2rem',
+                fontWeight: 'bold'
+              }}>
                 Average Daily Export
               </h3>
               <p style={{ 
-                fontSize: '1.5rem',
+                fontSize: '2rem',
                 fontWeight: 'bold',
-                color: '#1e293b'
+                color: '#ffffff'
               }}>
-                {extractValue(result.content[0].text.value, 'average daily export')} kWh
+                {result.dailyExport ? `${result.dailyExport} kWh` : 'Not found'}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '2rem' }}>
+            <h3 style={{ 
+              color: '#ffffff', 
+              marginBottom: '1rem',
+              fontSize: '1.5rem',
+              fontWeight: 'bold'
+            }}>
+              Additional Analysis
+            </h3>
+            <div style={{
+              padding: '1.5rem',
+              backgroundColor: '#333333',
+              borderRadius: '8px',
+              color: '#ffffff'
+            }}>
+              <p style={{ marginBottom: '0.5rem' }}>Daily Usage: {result.dailyUsage} kWh</p>
+              <p style={{ marginBottom: '0.5rem' }}>Daily Export: {result.dailyExport} kWh</p>
+              <p style={{ 
+                marginTop: '1rem',
+                paddingTop: '1rem',
+                borderTop: '1px solid #444',
+                fontSize: '0.9rem',
+                color: '#aaa'
+              }}>
+                Raw Response: {result.rawResponse}
               </p>
             </div>
           </div>

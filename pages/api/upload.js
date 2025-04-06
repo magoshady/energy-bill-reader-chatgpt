@@ -60,12 +60,18 @@ ${extractedText}
         throw new Error('No response from OpenAI');
       }
 
+      // Extract values from the response
+      const responseText = openaiData.choices[0].message.content;
+      const usageMatch = responseText.match(/Average Daily Usage:\s*([\d.]+)/i);
+      const exportMatch = responseText.match(/Average Daily Export:\s*([\d.]+)/i);
+
+      const dailyUsage = usageMatch ? parseFloat(usageMatch[1]) : null;
+      const dailyExport = exportMatch ? parseFloat(exportMatch[1]) : null;
+
       const response = {
-        content: [{
-          text: {
-            value: openaiData.choices[0].message.content
-          }
-        }]
+        dailyUsage,
+        dailyExport,
+        rawResponse: responseText
       };
       
       return res.status(200).json({ result: response });
