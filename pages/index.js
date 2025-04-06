@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Load results from localStorage on component mount
+  useEffect(() => {
+    const savedResult = localStorage.getItem('billAnalysis');
+    if (savedResult) {
+      setResult(JSON.parse(savedResult));
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +32,8 @@ export default function Home() {
         throw new Error(data.error || 'Failed to process the PDF');
       }
       
+      // Store the result in localStorage
+      localStorage.setItem('billAnalysis', JSON.stringify(data.result));
       setResult(data.result);
     } catch (err) {
       setError(err.message);
@@ -200,35 +210,6 @@ export default function Home() {
                 color: '#ffffff'
               }}>
                 {result.dailyExport ? `${result.dailyExport} kWh` : 'Not found'}
-              </p>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '2rem' }}>
-            <h3 style={{ 
-              color: '#ffffff', 
-              marginBottom: '1rem',
-              fontSize: '1.5rem',
-              fontWeight: 'bold'
-            }}>
-              Additional Analysis
-            </h3>
-            <div style={{
-              padding: '1.5rem',
-              backgroundColor: '#333333',
-              borderRadius: '8px',
-              color: '#ffffff'
-            }}>
-              <p style={{ marginBottom: '0.5rem' }}>Daily Usage: {result.dailyUsage} kWh</p>
-              <p style={{ marginBottom: '0.5rem' }}>Daily Export: {result.dailyExport} kWh</p>
-              <p style={{ 
-                marginTop: '1rem',
-                paddingTop: '1rem',
-                borderTop: '1px solid #444',
-                fontSize: '0.9rem',
-                color: '#aaa'
-              }}>
-                Raw Response: {result.rawResponse}
               </p>
             </div>
           </div>
