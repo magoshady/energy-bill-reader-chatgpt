@@ -6,12 +6,17 @@ export default function Home() {
   const [error, setError] = useState(null);
 
   // Load any previously saved result
-  useEffect(() => {
-    const savedResult = localStorage.getItem('billAnalysis');
-    if (savedResult) {
-      setResult(JSON.parse(savedResult));
-    }
-  }, []);
+ // useEffect(() => {
+  //  const savedResult = localStorage.getItem('billAnalysis');
+   // if (savedResult) {
+   //   setResult(JSON.parse(savedResult));
+   // }
+    // Clear result on every load
+    useEffect(() => {
+      localStorage.removeItem('billAnalysis');
+      sessionStorage.removeItem('billAnalysis');
+    }, []);
+  //}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
