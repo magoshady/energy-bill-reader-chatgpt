@@ -39,7 +39,14 @@ export default function Home() {
         timestamp: new Date().toISOString()
       };
       
+      // Store in localStorage
       localStorage.setItem('billAnalysis', JSON.stringify(resultToStore));
+      console.log('Stored results in localStorage:', resultToStore);
+      
+      // Also store in sessionStorage as a backup
+      sessionStorage.setItem('billAnalysis', JSON.stringify(resultToStore));
+      console.log('Stored results in sessionStorage:', resultToStore);
+      
       setResult(resultToStore);
 
     } catch (err) {
