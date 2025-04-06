@@ -35,6 +35,17 @@ export default function Home() {
       // Store the result in localStorage
       localStorage.setItem('billAnalysis', JSON.stringify(data.result));
       setResult(data.result);
+
+      // Add this after you get the results in your Vercel app
+      if (window.parent !== window) {
+        window.parent.postMessage({
+          type: 'billAnalysis',
+          result: {
+            dailyUsage: data.result.dailyUsage,
+            dailyExport: data.result.dailyExport
+          }
+        }, 'www.nuevaenergy.com.au'); // Replace '*' with your website's domain for better security
+      }
     } catch (err) {
       setError(err.message);
     } finally {
