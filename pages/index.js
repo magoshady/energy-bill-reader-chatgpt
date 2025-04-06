@@ -47,6 +47,14 @@ export default function Home() {
       sessionStorage.setItem('billAnalysis', JSON.stringify(resultToStore));
       console.log('Stored results in sessionStorage:', resultToStore);
       
+      // Store in a custom event that can be listened to by the parent window
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'billAnalysis',
+          result: resultToStore
+        }, '*');
+      }
+      
       setResult(resultToStore);
 
     } catch (err) {
